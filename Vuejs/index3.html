@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #068ea7;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #fafafa;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+     <h1>Tabla de Datos</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Nombre de Usuario</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Página Web</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-body">
+        </tbody>
+    </table>
+
+    <form id="formulario">
+        <h2>Agregar / Editar Usuario</h2>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required>
+        <br>
+        <label for="usuario">Nombre de Usuario:</label>
+        <input type="text" id="usuario" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+        <br>
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" required>
+        <br>
+        <label for="web">Página Web:</label>
+        <input type="url" id="web" required>
+        <br>
+        <input type="submit" id="boton-guardar" value="Guardar">
+        <input type="button" id="boton-cancelar" value="Cancelar" onclick="cancelarEdicion()">
+    </form>
+
+    <script>
+        var datosJSON = [];
+        var modoEdicion = false;
+        var indiceEdicion = -1;
+
+        var formulario = document.getElementById("formulario");
+        var botonGuardar = document.getElementById("boton-guardar");
+        var botonCancelar = document.getElementById("boton-cancelar");
+
+        formulario.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var nombre = document.getElementById("nombre").value;
+            var usuario = document.getElementById("usuario").value;
+            var email = document.getElementById("email").value;
+            var telefono = document.getElementById("telefono").value;
+            var web = document.getElementById("web").value;
+
+            if (modoEdicion) {
+                // Modo edición
+                datosJSON[indiceEdicion] = {
+                    nombre: nombre,
+                    usuario: usuario,
+                    email: email,
+                    telefono: telefono,
+                    web: web
+                };
+                modoEdicion = false;
+                indiceEdicion = -1;
+            } else {
+                // Modo creación
+                var nuevoDato = {
+                    nombre: nombre,
+                    usuario: usuario,
+                    email: email,
+                    telefono: telefono,
+                    web: web
+                };
+                datosJSON.push(nuevoDato);
+            }
+
+            cargarDatos();
+            formulario.reset();
+        });
+
+        function cargarDatos() {
+            var tablaBody = document.getElementById("tabla-body");
+            tablaBody.innerHTML = "";
+
+            for (var i = 0; i < datosJSON.length; i++) {
+                var fila = document.createElement("tr");
+                var datos = datosJSON[i];
+
+                fila.innerHTML = `
+                    <td>${datos.nombre}</td>
+                    <td>${datos.usuario}</td>
+                    <td>${datos.email}</td>
+                    <td>${datos.telefono}</td>
+                    <td>${datos.web}</td>
+                    <td>
+                        <button onclick="editar(${i})">Editar</button>
+                        <button onclick="eliminar(${i})">Eliminar</button>
+                    </td>
+                `;
+
+                tablaBody.appendChild(fila);
+            }
+        }
+
+        function editar(index) {
+            var datos = datosJSON[index];
+            document.getElementById("nombre").value = datos.nombre;
+            document.getElementById("usuario").value = datos.usuario;
+            document.getElementById("email").value = datos.email;
+            document.getElementById("telefono").value = datos.telefono;
+            document.getElementById("web").value = datos.web;
+
+            modoEdicion = true;
+            indiceEdicion = index;
+
+            botonGuardar.value = "Actualizar";
+            botonCancelar.style.display = "inline";
+        }
+
+        function eliminar(index) {
+            datosJSON.splice(index, 1);
+            cargarDatos();
+        }
+
+        function cancelarEdicion() {
+            modoEdicion = false;
+            indiceEdicion = -1;
+
+            botonGuardar.value = "Guardar";
+            botonCancelar.style.display = "none";
+
+            formulario.reset();
+        }
+
+        cargarDatos();
+    </script>
+</body>
+
+</html>
